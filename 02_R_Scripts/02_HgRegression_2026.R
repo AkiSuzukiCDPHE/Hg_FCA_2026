@@ -6,10 +6,23 @@ library(dplyr)
 library(broom)
 # library(ggpubr)
 library(readr)
+library(readxl)
 library("tidyverse")
 
 # Use the "HgData_Clean" data frame from the cleaning R script or import clean data for this years update
-HgData_Clean <- read_excel("X:\\Shared drives\\_CDPHE TEEO TARA\\PFAS 🔥\\Data Integration and Assessment\\Fish\\FCAs\\Mercury FCAs\\Annual FCA updates\\2024 Update\\Hg_FCA_2024\\03_Clean_Data\\Hg_CleanedMaster_2024.xlsx")
+HgData_Clean_All_Data <- read_excel("03_Clean_Data/Hg_CleanedMaster_2026.xlsx")
+
+
+
+# Add a variable that indicates whether the waterbody and species has new data for this update
+# Always change year for each update
+# Filter the dataset
+HgData_Clean <- HgData_Clean_All_Data %>%
+  group_by(Waterbody, Species) %>%
+  # Keeps the whole group if 'any' row within it has a year matching 2024 or 2025
+  filter(any(Sample_Year %in% c(2024, 2025, "2024", "2025"))) %>% 
+  ungroup()
+
 
 
 # Turn off scientific notation
@@ -19,22 +32,24 @@ options(scipen = 999)
 Waterbodies = as.data.frame((HgData_Clean %>% select(Waterbody) %>% unique()))
 
 # Select the unique name of the species and save to a vector called "Species"
-Species = as.data.frame(HgData_Clean %>% select(Species_Codes) %>% unique())
+Species = as.data.frame(HgData_Clean %>% select(Species_Code) %>% unique())
 
 # Filter the Species vector for the predator fish
-Species = Species %>% filter(Species_Codes %in% c("NPK", "SMB", "LMB", "WAL", "SAG", "SGR"))
+Species = Species %>% filter(Species_Code %in% c("NPK", "SMB", "LMB", "WAL", "SAG", "SGR"))
 
 # Create a new data frame for running the regression which filters out non-detect values.
 # Non-detect values result in an R2 of 1 because all results values are the same (1/2 the MDL). 
 # Therefore these samples should not be included because they will produce an artificially
 # strong relationship between length and concentration.
-Hg_Length_Regression = HgData_Clean %>% filter(Qualifier != "<")
+
+# Update this with new symbols for Non detects from this years new data
+Hg_Length_Regression = HgData_Clean %>% filter(!Qualifier %in% c("<", "BDL"))
 
 # Use the is.na function to check that NA values in the Qualifier column are included in the new regression dataframe.
 NA_Data = HgData_Clean %>% filter(is.na(HgData_Clean$Qualifier))
 
 # Merge the regression data frame and the NA_Data data frame. This data frame includes all
-# rows except those where Qualifier = "<"
+# rows except those where Qualifier are not non detect
 Hg_Length_Regression = bind_rows(Hg_Length_Regression, NA_Data)
 
 # Build an empty data frame called Hg_Reg_Output. This data frame will store the
@@ -76,7 +91,7 @@ colnames(Hg_Reg_Output) <- c("N", "Waterbody","Species", "R2","Pvalue","Intercep
     fish <- Species[j,]
     
 # Create a new data frame, "reg_data," by filtering the Hg_Length_Regression data frame based on the current waterbody and fish species
-    reg_data <- Hg_Length_Regression %>% filter(Waterbody == wbody & Species_Codes == fish)
+    reg_data <- Hg_Length_Regression %>% filter(Waterbody == wbody & Species_Code == fish)
     
 # lm() function will error out if the data frame has no rows. 
     
@@ -158,13 +173,13 @@ Hg_Reg_Output3 = Hg_Reg_Output2 %>%
   
 # The first argument (select(Hg_Reg_Output3, Waterbody, Species, Pred_Length)) is a subset of
 # the Hg_Reg_Output3 data frame, selecting only the columns Waterbody, Species, and Pred_Length.
-# The second argument (by = c("Waterbody" = "Waterbody", "Species_Codes" = "Species")) specifies the
+# The second argument (by = c("Waterbody" = "Waterbody", "Species_Code" = "Species")) specifies the
 # columns to join on. It indicates that the Waterbody column in Hg_Length_Regression should be matched with
-# the Waterbody column in the subset, and the Species_Codes column in Hg_Length_Regression should be
+# the Waterbody column in the subset, and the Species_Code column in Hg_Length_Regression should be
 # matched with the Species column in the subset.
   Hg_Length_Regression2 = Hg_Length_Regression %>% 
   left_join(select(Hg_Reg_Output3, Waterbody, Species, Pred_Length),
-            by = c("Waterbody" = "Waterbody", "Species_Codes" = "Species")
+            by = c("Waterbody" = "Waterbody", "Species_Code" = "Species")
             )
 
 # This R code is filtering a data frame (Hg_Length_Regression2) into two separate data frames:
