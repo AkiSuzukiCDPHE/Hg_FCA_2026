@@ -19,9 +19,11 @@ Hg_SS_FCAs_Final <- HgSS_Final_AllPops_Censored %>%
 
 
 # Subset to df with all new, updated, or potentially lifted advisories
+# Add new categories if you create them
 Hg_SS_FCAs_Final_1 <- Hg_SS_FCAs_Final |>  filter(Rec %in% c(
   "Same as Statewide - Consider removing SS advisory with TAC",
   "Adopt SS advisory (More stringent than statewide)",
+  "Adopt updated SS (More Stringent than existing SS)",
   "Adopt updated (Less Stringent than existing SS)",
   "Issue a new site-specific FCA",
   "Consider removing SS advisory with TAC",
@@ -37,25 +39,40 @@ Hg_SS_FCAs_Final_CPW_Regions <- merge(Hg_SS_FCAs_Final_1, CPWRegions[, c("Waterb
 
 # Make sure all rows are distinct
 Hg_SS_FCAs_Final_CPW_Regions1 <- Hg_SS_FCAs_Final_CPW_Regions %>%
-  distinct(Waterbody, Species, Average_Result, Population, .keep_all = TRUE) |> rename (CPW_Region = REGION)
-
-# Rename columns to make them more legible and reorder variables
-Hg_SS_FCAs_Final_CPW_Regions2 <- Hg_SS_FCAs_Final_CPW_Regions1 %>% rename(
-  c(
-    `Sample N` = Num_Obs,
-    Size = FishType,
-    `Proposed (meals per month)` = MealsPerMonth,
-    `Existing site-specific (meals per month)` = Current_SS_Per_Month,
-    `Existing site-specific status` = SS_Status,
-    `Statewide (meals per month)` = Statewide_Per_Month,
-    `Statewide status` = State_Status,
-    Recommendation = Rec))  |> select (Waterbody:Species_Code, Commonly_Consumed, Average_Result:`Sample N`, Length_Inches:CPW_Region) |> mutate(Size=if_else(is.na(Size), "Any", Size))
-      
+  distinct(Waterbody, Species, Average_Result, Population, FishType,  .keep_all = TRUE) |> rename (CPW_Region = REGION)
 
 
-# Export the FINAL dataset ####
+# Rename columns to make them more legible, reorder variables, and rename the values for population to make them match the dashboard
+Hg_SS_FCAs_Final_CPW_Regions2 <- Hg_SS_FCAs_Final_CPW_Regions1 %>% mutate(
+  Population = case_when(
+    Population == "GP" ~ "General population",
+    Population == "WCBA" ~ "Pregnant women",
+    Population == "Children" ~ "Children (ages 6 and younger)"
+  )) |>
+    rename(
+      c(
+        `Sample N` = Num_Obs,
+        Size = FishType,
+        Current_SS_Size = Current_Fishtype,
+        `Proposed (meals per month)` = MealsPerMonth,
+        `Existing site-specific (meals per month)` = Current_SS_Per_Month,
+        `Existing site-specific status` = SS_Status,
+        `Statewide (meals per month)` = Statewide_Per_Month,
+        `Statewide status` = State_Status,
+        Recommendation = Rec
+      )
+    )  |> select (
+      Waterbody:Species_Code,
+      Commonly_Consumed,
+      Average_Result:`Sample N`,
+      Length_Inches:CPW_Region
+    ) |> mutate(Size = if_else(is.na(Size), "any", Size))
+  
 
-library("writexl")
-write_xlsx(Hg_SS_FCAs_Final_CPW_Regions2, "04_Output/2026_Hg_SS_Final_FCAs.xlsx")
 
+# # Export the FINAL dataset ####
+# 
+# library("writexl")
+# write_xlsx(Hg_SS_FCAs_Final_CPW_Regions2, "04_Output/2026_Hg_SS_Final_FCAs.xlsx")
+# 
 

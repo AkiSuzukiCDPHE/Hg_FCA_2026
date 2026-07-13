@@ -14,7 +14,7 @@ HgData_Clean_All_Data <- read_excel("03_Clean_Data/Hg_CleanedMaster_2026.xlsx")
 
 
 
-# Add a variable that indicates whether the waterbody and species has new data for this update
+# Filter for waterbodies that have new data in this update.
 # Always change year for each update
 # Filter the dataset
 HgData_Clean <- HgData_Clean_All_Data %>%

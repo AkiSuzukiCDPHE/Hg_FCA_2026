@@ -1,7 +1,6 @@
 library(ggplot2)
 library(dplyr)
 library(broom)
-# library(ggpubr)
 library(readxl)
 library(readr)
 library("tidyverse")
@@ -11,7 +10,10 @@ library("tidyverse")
 # This power analysis should be conducted every 10 years
 # The most recent power analysis was conducted in 2024 using the "Hg_CleanedMaster_2022" dataset
 # The next power analysis should be conducted in 2034
-HgData_Clean_Power <- read_excel("X:\\Shared drives\\_CDPHE TEEO TARA\\PFAS 🔥\\Data Integration and Assessment\\Fish\\FCAs\\Mercury FCAs\\Annual FCA updates\\2024 Update\\Hg_FCA_2024\\03_Clean_Data\\Hg_CleanedMaster_2022.xlsx")
+
+HgData_Clean_Power <- read_excel(
+  "X:\\Shared drives\\_CDPHE TEEO TARA\\PFAS 🔥\\Data Integration and Assessment\\Fish\\FCAs\\Mercury FCAs\\Annual FCA updates\\2024 Update\\Hg_FCA_2024\\03_Clean_Data\\Hg_CleanedMaster_2022.xlsx"
+)
 
 
 
@@ -48,13 +50,13 @@ MeanH1 <- .1
 
 std_dev <- HgData_Clean_Power %>%
   group_by(Waterbody, Species) %>%
-  summarise_at(vars(Result), list(Standard_Dev=sd))
+  summarise_at(vars(Result), list(Standard_Dev = sd))
 
 summary(std_dev$Standard_Dev)
 # median of the standard deviation by waterbody by species =.03271
 # could use the geometric mean of standard deviations instead of median. GM is not as influenced by outliers?
 
-Standard_Deviation <-.038
+Standard_Deviation <- .038
 
 
 
@@ -65,11 +67,11 @@ library(pwr)
 
 # Effect size =(MeanH1-MeanH0)/SD =
 
-Effect_Size <-(MeanH1-MeanH0)/Standard_Deviation
+Effect_Size <- (MeanH1 - MeanH0) / Standard_Deviation
 
-# To get the detectable difference at different percentages, multiply the null value by 1.1, 1.2, 1.3 etc. 
+# To get the detectable difference at different percentages, multiply the null value by 1.1, 1.2, 1.3 etc.
 
-X <- c(1.1, 1.2, 1.3, 1.4,  1.5)
+X <- c(1.1, 1.2, 1.3, 1.4, 1.5)
 
 Effect_size_values <- .091 * X
 
@@ -88,65 +90,113 @@ print(Effect_size_values)
 
 # Effect size and power analysis at a 0% detectable difference
 
-Effect_size <- (.1 -.091)/.038
+Effect_size <- (.1 - .091) / .038
 
-Result <- pwr.t.test(d= Effect_size, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided")
+Result <- pwr.t.test(
+  d = Effect_size,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
 
 # Effect size at a 10% detectable difference
 
-Effect_size_10 <- (0.1001- MeanH0)/Standard_Deviation
+Effect_size_10 <- (0.1001 - MeanH0) / Standard_Deviation
 
-Result <- pwr.t.test(d= Effect_size_10, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided") 
+Result <- pwr.t.test(
+  d = Effect_size_10,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
-N10=139
+N10 = 139
 
 
 # Effect size at a 20% detectable difference
 
-Effect_size_20 <- (0.1092 - MeanH0)/Standard_Deviation
+Effect_size_20 <- (0.1092 - MeanH0) / Standard_Deviation
 
-Result <- pwr.t.test(d= Effect_size_20, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided") 
+Result <- pwr.t.test(
+  d = Effect_size_20,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
-N20=36
+N20 = 36
 
 # Effect size at a 30% detectable difference
 
-Effect_size_30 <- (0.1183 - MeanH0)/Standard_Deviation
+Effect_size_30 <- (0.1183 - MeanH0) / Standard_Deviation
 
-Result <- pwr.t.test(d= Effect_size_30, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided") 
+Result <- pwr.t.test(
+  d = Effect_size_30,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
-N30= 17
+N30 = 17
 
 # Effect size at a 40% detectable difference
 
-Effect_size_40 <- (0.1274 - MeanH0)/Standard_Deviation
+Effect_size_40 <- (0.1274 - MeanH0) / Standard_Deviation
 
-Result <- pwr.t.test(d= Effect_size_40, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided") 
+Result <- pwr.t.test(
+  d = Effect_size_40,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
-N40=11
+N40 = 11
 
 # Effect size at a 50% detectable difference
 
-Effect_size_50 <- (0.1365 - MeanH0)/Standard_Deviation
+Effect_size_50 <- (0.1365 - MeanH0) / Standard_Deviation
 
-Result <- pwr.t.test(d= Effect_size_50, sig.level=0.05, power=0.80, n= NULL, type="one.sample", alternative= "two.sided") 
+Result <- pwr.t.test(
+  d = Effect_size_50,
+  sig.level = 0.05,
+  power = 0.80,
+  n = NULL,
+  type = "one.sample",
+  alternative = "two.sided"
+)
 
-N50=8
+N50 = 8
 
 
 Samplesizes <- c(139, 36, 17, 11, 8)
 
-Power_analysis <-as.data.frame(Samplesizes)
+Power_analysis <- as.data.frame(Samplesizes)
 
-rownames(Power_analysis) = c("10% Detectable diff", "20% Detectable diff", "30% Detectable diff", "40% Detectable diff", "50% Detectable diff")
+rownames(Power_analysis) = c(
+  "10% Detectable diff",
+  "20% Detectable diff",
+  "30% Detectable diff",
+  "40% Detectable diff",
+  "50% Detectable diff"
+)
 
 print("Sample Dataframe with automatically assigned header")
 Power_analysis
 
 
 # One sample- two-tailed test
-# d=effect size 
+# d=effect size
 # sig.level=significant level
 # power=power of test
 # type=type of test
@@ -159,5 +209,3 @@ cat("Significance Level (alpha):", alpha, "\n")
 cat("Desired Power:", power, "\n\n")
 cat("Result:\n")
 print(result)
-
-

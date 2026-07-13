@@ -56,40 +56,37 @@ Hg_SS3=Hg_SS2 %>%
 # 2: Comparing to existing SS and Statewide ####
 
 
-# JOIN SS
-
 # Merge the data frame with the existing advisories list in order to evaluate which advisories are 
-# new, updated, or removed. In future advisories
+# new, updated, or removed in future advisories
 
 # Upload the existing advisories dataset
 # This will change every year but always needs to include all existing advisories.
 # Upload new version!!!
-Hg_Existing_SSAdvisories=read_excel("01_Raw_Data/Hg_Existing_Advisories_2026.xlsx", sheet=1)
+Existing_SSAdvisories=read_excel("01_Raw_Data/Existing_Advisories_2026.xlsx", sheet=1)
 
 
 # Filter the data frame for the Children
-Hg_ExistingSS <- Hg_Existing_SSAdvisories %>% filter(Population == "Children (ages 6 and younger)") |> rename(Children_Current_SS = Current_SS,
+ExistingSS <- Existing_SSAdvisories %>% filter(Population == "Children (ages 6 and younger)") |> rename(Children_Current_SS = Current_SS,
                                                                                             Children_Current_SS_Per_Month = Current_SS_Per_Month)
 
-
-library(dplyr)
+# JOIN SS: Creating new variables in the existing SS advisories dataset and joining to the updates
 
 # Step 1: Clean the reference dataset to create the Yes/No flag
-advisory_lookup <- Hg_ExistingSS %>%
+advisory_lookup <- ExistingSS %>%
   mutate(
-    # If it says "Statewide", it's NOT site-specific. Otherwise, it is.
-    Children_SS_Status = ifelse(Children_Current_SS == "Statewide advisory", "No", "Yes")
+    # If it says "Unrestricted", it's NOT site-specific. Otherwise, it is.
+    Children_SS_Status = ifelse(Children_Current_SS == "Unrestricted", "No", "Yes")
   ) %>%
   # Keep only the columns needed for matching and the new flag
   select(Waterbody, Species, FishType, Children_Current_SS_Per_Month, Children_SS_Status)
 
 # Step 2: Join the flag back to your original dataset
 Hg_SS4 <- Hg_SS3 %>%
-  left_join(advisory_lookup, by = c("Waterbody", "Species", "FishType")) %>%
+  left_join(advisory_lookup, by = c("Waterbody", "Species")) %>%
   mutate(
     # Handle cases where a waterbody/species combo wasn't in the reference data at all
     Children_SS_Status = ifelse(is.na(Children_SS_Status), "No", Children_SS_Status)
-  )
+  )  |> rename (FishType =FishType.x, Current_Fishtype=FishType.y)
 
 
 
@@ -97,13 +94,9 @@ Hg_SS4 <- Hg_SS3 %>%
 # JOIN STATEWIDE
 
 
-# Merge the data frame with the existing advisories list in order to evaluate which advisories are 
-# new, updated, or removed. In future advisories
-
-# Upload the existing advisories dataset
-# This will change every year but always needs to include all existing advisories.
-# Upload new version!!!
-Hg_Statewide=read_excel("01_Raw_Data/Hg_Existing_Advisories_2026.xlsx", sheet=2)
+# Upload the statewide advisories dataset
+# This only changes every 5-10 years - we will likely not update until 2034
+Hg_Statewide=read_excel("01_Raw_Data/Existing_Advisories_2026.xlsx", sheet=2)
 
 
 # Transpose to long and add variables
@@ -118,7 +111,7 @@ Hg_Statewide_long2 <- Hg_Statewide_long |>  mutate(Children_Statewide_Per_Month 
                                                                                    Statewide_Character =="6 meals/year" ~ 0.5,
                                                                                    Statewide_Character =="unrestricted" ~ NA))
 
-
+# Filter for Children
 Hg_Statewide_long3 <- Hg_Statewide_long2 %>% filter(Population == "Children")
 
 
@@ -144,7 +137,7 @@ Hg_SS5 <- Hg_SS4 %>%
 
 
 
-library(dplyr)
+# Calculate advisory comparisons
 
 Advisories_Children <- Hg_SS5 %>%
   mutate(
