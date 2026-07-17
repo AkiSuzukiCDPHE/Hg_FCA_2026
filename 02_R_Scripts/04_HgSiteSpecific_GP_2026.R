@@ -8,12 +8,13 @@ library(dplyr)
 # Create a new data frame using the final data frame from the regression script
 Hg_SS <- HgRegression_Final
 
+
 # ANALYSIS 1 - Censoring the data for the ideal averaging period.
 # For mercury always censor the data to be within the last 10 years.
 
-# # ANALYSIS 2 - Comment out the code below to censor the data so the analysis uses all samples from all of time.
-# Hg_SS <- Hg_SS %>% filter (Sample_Year >= "2016")
-#
+# ANALYSIS 2 - Comment out the code below to censor the data so the analysis uses all samples from all of time.
+Hg_SS <- Hg_SS %>% filter (Sample_Year >= "2016")
+
 
 # Calculate the average concentration (result) for each species by waterbody.
 # The group_by code means that the subsequent calculations will be applied separately for each
@@ -269,3 +270,4 @@ Advisories_GP <- Hg_SS5 %>%
       TRUE ~ "Review manually"
     )
   )
+

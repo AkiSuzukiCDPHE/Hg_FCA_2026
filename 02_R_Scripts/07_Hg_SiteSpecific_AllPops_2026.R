@@ -63,12 +63,12 @@ FCAs_2026_Long <- FCAs_2026 %>%
 # This semi-final dataset is used for manual review to determine advisories and decide on when to combine data.
 # Always use this format: "HgSS_Final_AllPops_Censored20XX" or "HgSS_Final_AllPops_Combined20XX"
 
-# HgSS_AllPops_Censored2026 <- FCAs_2026_Long
+HgSS_AllPops_Censored2026 <- FCAs_2026_Long
 
 #  Exporting the final CENSORED dataframe
 #  Change file paths
 
-# library("writexl")
+# library(writexl)
 # write_xlsx(HgSS_AllPops_Censored2026,"04_Output/2026_Hg_SS_Censored.xlsx")
 
 
@@ -76,32 +76,32 @@ FCAs_2026_Long <- FCAs_2026 %>%
 # Analysis 2 COMBINED DATA FOR SELECT WATERBODIES/SPECIES ####
 
 # Data should be filtered for only waterbodies and species that were flagged as “Yes” for combining data during the manual review.
-FCAs_2026_Long_CombinedData <- FCAs_2026_Long %>%
-  filter(
-    (Waterbody == "Yamcolo Reservoir" &
-       Species == "Mountain Whitefish") |
-      (Waterbody == "Ruedi Reservoir" & Species == "Yellow Perch") |
-      (Waterbody == "Rocky Mountain Lake" &
-         Species == "Largemouth Bass") |
-      (Waterbody == "Puett Reservoir" & Species == "Walleye") |
-      (Waterbody == "Horsetooth Reservoir" &
-         Species == "Smallmouth Bass") |
-      (Waterbody == "Big Meadows Reservoir" &
-         Species == "Brook Trout") |
-      (
-        Waterbody == "Big Creek Reservoir" &
-          Species == "Lake Trout(Mackinaw)"
-      )
-  )
+# FCAs_2026_Long_CombinedData <- FCAs_2026_Long %>%
+#   filter(
+#     (Waterbody == "Yamcolo Reservoir" &
+#        Species == "Mountain Whitefish") |
+#       (Waterbody == "Ruedi Reservoir" & Species == "Yellow Perch") |
+#       (Waterbody == "Rocky Mountain Lake" &
+#          Species == "Largemouth Bass") |
+#       (Waterbody == "Puett Reservoir" & Species == "Walleye") |
+#       (Waterbody == "Horsetooth Reservoir" &
+#          Species == "Smallmouth Bass") |
+#       (Waterbody == "Big Meadows Reservoir" &
+#          Species == "Brook Trout") |
+#       (
+#         Waterbody == "Big Creek Reservoir" &
+#           Species == "Lake Trout(Mackinaw)"
+#       )
+#   )
 
 #  Rename dataset
 
-HgSS_Final_AllPops_Combined2026 <- FCAs_2026_Long_CombinedData
+# HgSS_Final_AllPops_Combined2026 <- FCAs_2026_Long_CombinedData
 
 # # Exporting the final COMBINED dataframe.
 # # Change file paths
 
 
-library("writexl")
-write_xlsx(HgSS_Final_AllPops_Combined2026,
-           "04_Output/2026_Hg_SS_Combined.xlsx")
+# library("writexl")
+# write_xlsx(HgSS_Final_AllPops_Combined2026,
+#            "04_Output/2026_Hg_SS_Combined.xlsx")

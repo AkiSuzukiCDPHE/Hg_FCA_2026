@@ -42,15 +42,12 @@ Species = Species %>% filter(Species_Code %in% c("NPK", "SMB", "LMB", "WAL", "SA
 # Therefore these samples should not be included because they will produce an artificially
 # strong relationship between length and concentration.
 
-# Update this with new symbols for Non detects from this years new data
-Hg_Length_Regression = HgData_Clean %>% filter(!Qualifier %in% c("<", "BDL"))
 
-# Use the is.na function to check that NA values in the Qualifier column are included in the new regression dataframe.
-NA_Data = HgData_Clean %>% filter(is.na(HgData_Clean$Qualifier))
+# This keeps rows where Qualifier is NOT "<" or "BDL" OR is NA, in one step.
+Hg_Length_Regression = HgData_Clean %>% 
+  filter(!Qualifier %in% c("<", "BDL") | is.na(Qualifier))
 
-# Merge the regression data frame and the NA_Data data frame. This data frame includes all
-# rows except those where Qualifier are not non detect
-Hg_Length_Regression = bind_rows(Hg_Length_Regression, NA_Data)
+
 
 # Build an empty data frame called Hg_Reg_Output. This data frame will store the
 # output from the for loops function
@@ -177,10 +174,15 @@ Hg_Reg_Output3 = Hg_Reg_Output2 %>%
 # columns to join on. It indicates that the Waterbody column in Hg_Length_Regression should be matched with
 # the Waterbody column in the subset, and the Species_Code column in Hg_Length_Regression should be
 # matched with the Species column in the subset.
-  Hg_Length_Regression2 = Hg_Length_Regression %>% 
-  left_join(select(Hg_Reg_Output3, Waterbody, Species, Pred_Length),
-            by = c("Waterbody" = "Waterbody", "Species_Code" = "Species")
-            )
+Hg_Length_Regression2 = Hg_Length_Regression %>% 
+  left_join(
+    Hg_Reg_Output3 %>% 
+      select(Waterbody, Species, Pred_Length) %>% 
+      distinct(Waterbody, Species, .keep_all = TRUE), # Keeps only the first unique row per group
+    by = c("Waterbody" = "Waterbody", "Species_Code" = "Species")
+  )
+
+
 
 # This R code is filtering a data frame (Hg_Length_Regression2) into two separate data frames:
 # one containing rows where the Pred_Length column is not NA, and another containing rows where the
