@@ -22,16 +22,22 @@ Hg_SS <- Hg_SS %>% filter (Sample_Year >= "2016")
 # The Num_obs=n()) line calculates the number of observations within each group of waterbody and species
 # and creates a new variable called Num_Obs to store these counts i.e. it calculates the sample size for the ss
 # advisory.
-Hg_SS2 <- Hg_SS %>%
+
+# Add ungroup() immediately after mutate() to ungroup variables for next operation
+Hg_SS1 <- Hg_SS %>%
   group_by(Waterbody, Species_Code, FishType) %>%
-  mutate(Average_Result = mean(Result), Num_Obs = n())
+  mutate(Average_Result = mean(Result), Num_Obs = n()) %>%
+  ungroup()  # Removes the hidden grouping metadata
+
+
 
 # Obtain the unique rows based on the specified columns from the Hg_SS2 data frame.
-# The distinct function keeps the distinct rows based on the Waterbody column while preserving all
+# The distinct function keeps the distinct rows based on the Waterbody, Species_Code and Fish_Type while preserving all
 # other columns specified in the .keep_all argument.
-# This operation ensures that duplicate rows based on Waterbody are removed while
+# This operation ensures that duplicate rows based on Waterbody, Species_Code, Fish_Type are removed while
 # preserving the values of other variables.
-Hg_SS2 = distinct(Hg_SS2, Waterbody, .keep_all = TRUE) %>%
+Hg_SS2<- Hg_SS1 %>%
+  distinct(Waterbody, Species_Code, FishType, .keep_all = TRUE) %>%
   select(
     Waterbody,
     Species,
@@ -44,6 +50,7 @@ Hg_SS2 = distinct(Hg_SS2, Waterbody, .keep_all = TRUE) %>%
     Pred_Length,
     FishType
   )
+
 
 
 # Assign meal frequency recommendations for site-specific advisories using the

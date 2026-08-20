@@ -11,10 +11,7 @@ library("tidyverse")
 # The most recent power analysis was conducted in 2024 using the "Hg_CleanedMaster_2022" dataset
 # The next power analysis should be conducted in 2034
 
-HgData_Clean_Power <- read_excel(
-  "X:\\Shared drives\\_CDPHE TEEO TARA\\PFAS 🔥\\Data Integration and Assessment\\Fish\\FCAs\\Mercury FCAs\\Annual FCA updates\\2024 Update\\Hg_FCA_2024\\03_Clean_Data\\Hg_CleanedMaster_2022.xlsx"
-)
-
+HgData_Clean_Power <- read_excel("03_Clean_Data/Hg_CleanedMaster_2026.xlsx")
 
 
 # POWER ANALYSIS FOR MERCURY DATA
@@ -24,7 +21,7 @@ HgData_Clean_Power <- read_excel(
 
 # MeanH0 = Screening value/threshold for issuing a site-specific advisory (8 meal per month FCLG)
 # For Hg this is .091 mg/ mercury/kg fish
-# For PFOS this is .91
+# For PFOS this is .91 ng/g
 
 MeanH0 <- .091
 
@@ -37,33 +34,23 @@ MeanH0 <- .091
 
 library(dplyr)
 
-mean_by_group <- HgData_Clean_Power %>%
+
+# Combine mean and sd calculations into one step
+summary_stats <- HgData_Clean_Power %>%
   group_by(Waterbody, Species) %>%
-  summarise(mean_variable = mean(Result))
+  summarise(
+    mean_variable = mean(Result, na.rm = TRUE),
+    Standard_Dev  = sd(Result, na.rm = TRUE),      # Fixed: sd() instead of std_dev()
+    .groups = "drop"
+  )
 
-summary(mean_by_group$mean_variable)
-# median of the mean by waterbody by species = 0.10000
-
-MeanH1 <- .1
-
-# Calculating Standard Deviation
-
-std_dev <- HgData_Clean_Power %>%
-  group_by(Waterbody, Species) %>%
-  summarise_at(vars(Result), list(Standard_Dev = sd))
-
-summary(std_dev$Standard_Dev)
-# median of the standard deviation by waterbody by species =.03271
-# could use the geometric mean of standard deviations instead of median. GM is not as influenced by outliers?
-
-Standard_Deviation <- .038
+# Extract dynamic medians
+MeanH1 <- median(summary_stats$mean_variable, na.rm = TRUE)
+Standard_Deviation <- median(summary_stats$Standard_Dev, na.rm = TRUE)
 
 
 
-# Install and load the pwr package
-install.packages("pwr")
 library(pwr)
-
 
 # Effect size =(MeanH1-MeanH0)/SD =
 
@@ -77,19 +64,24 @@ Effect_size_values <- .091 * X
 
 print(Effect_size_values)
 
-# 0.1001 = 10% detectable difference
-# 0.1092 = 20% detectable difference
-# 0.1183 = 30% detectable difference
-# 0.1274 = 40% detectable difference
-# 0.1365 = 50% detectable difference
+
+# Detectable difference represents the percentage exceeding the threshold that the sample size can detect.
+# For example .1001 is a 10% exceedance of the threshold for 8 meals per month (.091)
+# MeanH0 = the null hypothesis threshold for issuing an advisory
+# 0.1001 = 10% detectable difference above the threshold
+# 0.1092 = 20% detectable difference above the threshold
+# 0.1183 = 30% detectable difference above the threshold
+# 0.1274 = 40% detectable difference above the threshold
+# 0.1365 = 50% detectable difference above the threshold
 
 
 
-
-
+# For each percentage increase, calculate the detectable difference divided by standard deviation and feeds it into pwr.t.test()
+# using standard settings:
+# sig.level = 0.05 
+# power = 0.80 (80% chance of detecting a real increase).
 
 # Effect size and power analysis at a 0% detectable difference
-
 Effect_size <- (.1 - .091) / .038
 
 Result <- pwr.t.test(
@@ -204,8 +196,9 @@ Power_analysis
 
 
 # Display the result
-cat("Effect Size:", effect_size, "\n")
-cat("Significance Level (alpha):", alpha, "\n")
-cat("Desired Power:", power, "\n\n")
-cat("Result:\n")
-print(result)
+# Match exact variable names
+cat("Effect Size:", Effect_Size, "\n")
+cat("Significance Level (alpha):", 0.05, "\n")
+cat("Desired Power:", 0.80, "\n\n")
+print(Result)
+

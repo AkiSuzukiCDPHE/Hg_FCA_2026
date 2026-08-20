@@ -22,7 +22,7 @@ HgData_Master <- read_excel("X:\\Shared drives\\_CDPHE TEEO TARA\\PFAS 🔥\\Dat
 # Calculate the average concentration (result) for each species
 # across all water bodies for the statewide advisory
 HgData_Statewide = HgData_Master %>%
-  group_by(Species_Codes) %>%
+  group_by(Species_Code) %>%
   mutate(Average_Result_SW = mean(Result, na.rm = TRUE),
          Num_Obs = sum(!is.na(Average_Result_SW)))
 
@@ -30,7 +30,7 @@ HgData_Statewide = HgData_Master %>%
 # sub-set the data frame to only include one row per average result for a species
 # Also choosing which variables to keep.
 HgData_Statewide = distinct(HgData_Statewide, Average_Result_SW, .keep_all = TRUE) %>%
-  select(Species, Old_Species_Codes, Species_Codes, Analyte1, Average_Result_SW, Num_Obs, In_Existing_Advisory, Commonly_Consumed)
+  select(Species, Old_Species_Code, Species_Code, Analyte1, Average_Result_SW, Num_Obs, In_Existing_Advisory, Commonly_Consumed)
 
 
 # Add the column Unit
@@ -38,7 +38,7 @@ HgData_Statewide <- HgData_Statewide %>%
   mutate(Unit = "Mg/Kg")
 
 # Reorder variables
-HgData_Statewide= HgData_Statewide %>% select(Species, Old_Species_Codes,Species_Codes, Analyte1, Num_Obs, Average_Result_SW, Unit,
+HgData_Statewide= HgData_Statewide %>% select(Species, Old_Species_Code,Species_Code, Analyte1, Num_Obs, Average_Result_SW, Unit,
                                     Commonly_Consumed)
 
 
@@ -63,11 +63,11 @@ HgData_Statewide1=HgData_Statewide %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1=HgData_Statewide1 %>%
-  mutate(GP_SW_Change=case_when(Species_Codes %in% c("BRK","KOK","DRM") & (GP_MealsPerMonth=="8")~"No",
-                                   Species_Codes %in% c("BBH", "BCR", "BGL", "LOC", "CCF", "CPP", "SNF", "MAC","LMB","NPK","RBT","SAG","SPL"
+  mutate(GP_SW_Change=case_when(Species_Code %in% c("BRK","KOK","DRM") & (GP_MealsPerMonth=="8")~"No",
+                                   Species_Code %in% c("BBH", "BCR", "BGL", "LOC", "CCF", "CPP", "SNF", "MAC","LMB","NPK","RBT","SAG","SPL"
                                                         ,"SBS","Wal","WAL","WBA", "WHS", "SXW","YPE","WCR") & (GP_MealsPerMonth=="4")~"No",
-                                   Species_Codes %in% c("NAT", "NPK", "SMB", "WAL") & (GP_MealsPerMonth=="2")~"No",
-                                   Species_Codes %in% c("LMB","SMB","TGM") & (GP_MealsPerMonth=="1")~"No",
+                                   Species_Code %in% c("NAT", "NPK", "SMB", "WAL") & (GP_MealsPerMonth=="2")~"No",
+                                   Species_Code %in% c("LMB","SMB","TGM") & (GP_MealsPerMonth=="1")~"No",
                                    TRUE~"Yes"))
 
 
@@ -76,11 +76,11 @@ HgData_Statewide1=HgData_Statewide1 %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1=HgData_Statewide1 %>%
-  mutate(Existing_GP_MealsPerMonth=case_when(Species_Codes %in% c("BRK","KOK","DRM")~"8",
-                                       Species_Codes %in% c("BBH", "BCR", "BGL", "LOC", "CCF", "CPP", "SNF", "MAC","LMB","NPK","RBT","SAG","SPL"
+  mutate(Existing_GP_MealsPerMonth=case_when(Species_Code %in% c("BRK","KOK","DRM")~"8",
+                                       Species_Code %in% c("BBH", "BCR", "BGL", "LOC", "CCF", "CPP", "SNF", "MAC","LMB","NPK","RBT","SAG","SPL"
                                                             ,"SBS","Wal","WAL","WBA", "WHS", "SXW","YPE","WCR") ~"4",
-                                       Species_Codes %in% c("NAT", "NPK", "SMB", "WAL")~"2",
-                                       Species_Codes %in% c("LMB","SMB","TGM")~"1",
+                                       Species_Code %in% c("NAT", "NPK", "SMB", "WAL")~"2",
+                                       Species_Code %in% c("LMB","SMB","TGM")~"1",
                                        TRUE ~ "No existing advisory"))
 
 
@@ -105,10 +105,10 @@ HgData_Statewide1=HgData_Statewide1 %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1=HgData_Statewide1 %>%
-  mutate(WCBA_SW_Change=case_when(Species_Codes %in% c("BBH","BGL","BRK","LOC","DRM","SNF","KOK","RBT","SPL","WHS") & (WCBA_MealsPerMonth =="4")~"No",
-                                   Species_Codes %in% c("BCR","CCF","CPP","NAT","MAC","LMB","NPK","SAG","SMB","SBS","Wal","WAL","WBA",
+  mutate(WCBA_SW_Change=case_when(Species_Code %in% c("BBH","BGL","BRK","LOC","DRM","SNF","KOK","RBT","SPL","WHS") & (WCBA_MealsPerMonth =="4")~"No",
+                                   Species_Code %in% c("BCR","CCF","CPP","NAT","MAC","LMB","NPK","SAG","SMB","SBS","Wal","WAL","WBA",
                                                         "WCR","SXW","YPE") & (WCBA_MealsPerMonth =="2")~"No",
-                                   Species_Codes %in% c("TGM") & (WCBA_MealsPerMonth =="1")~"No",
+                                   Species_Code %in% c("TGM") & (WCBA_MealsPerMonth =="1")~"No",
                                    TRUE~"Yes"))
 
 
@@ -116,9 +116,9 @@ HgData_Statewide1=HgData_Statewide1 %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1=HgData_Statewide1 %>%
-  mutate(Existing_WCBA_MealsPerMonth=case_when(Species_Codes %in% c("BBH","BGL","BRK","LOC","DRM","SNF","KOK","RBT","SPL","WHS")~"4",
-                                         Species_Codes %in% c("BCR","CCF","CPP","NAT","MAC","LMB","NPK","SAG","SMB","SBS","Wal","WAL","WBA","WCR","SXW","YPE") ~"2",
-                                         Species_Codes %in% c("TGM")~"1",
+  mutate(Existing_WCBA_MealsPerMonth=case_when(Species_Code %in% c("BBH","BGL","BRK","LOC","DRM","SNF","KOK","RBT","SPL","WHS")~"4",
+                                         Species_Code %in% c("BCR","CCF","CPP","NAT","MAC","LMB","NPK","SAG","SMB","SBS","Wal","WAL","WBA","WCR","SXW","YPE") ~"2",
+                                         Species_Code %in% c("TGM")~"1",
                                              TRUE ~ "No existing advisory"))
 
 
@@ -147,8 +147,8 @@ HgData_Statewide1=HgData_Statewide1 %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1 = HgData_Statewide1 %>%
-  mutate(Children_SW_Change=case_when(Species_Codes %in% c("BBH","BGL","BRK","LOC","CCF", "NAT", "SAG", "WBA", "WCR","DRM","SNF","KOK","RBT","SPL","WHS") & (Children_MealsPerMonth =="2")~"No",
-                                   Species_Codes %in% c("BCR","CPP","SNF", "MAC","LMB","NPK","SMB","SBS","TGM","Wal","WAL","SXW","YPE") & (Children_MealsPerMonth =="1")~"No",
+  mutate(Children_SW_Change=case_when(Species_Code %in% c("BBH","BGL","BRK","LOC","CCF", "NAT", "SAG", "WBA", "WCR","DRM","SNF","KOK","RBT","SPL","WHS") & (Children_MealsPerMonth =="2")~"No",
+                                   Species_Code %in% c("BCR","CPP","SNF", "MAC","LMB","NPK","SMB","SBS","TGM","Wal","WAL","SXW","YPE") & (Children_MealsPerMonth =="1")~"No",
                                    TRUE~"Yes"))
 
 
@@ -156,8 +156,8 @@ HgData_Statewide1 = HgData_Statewide1 %>%
 # This will always need to be updated based on the existing statewide advisory.
 # Update this to reflect 2024 statewide advisory!!
 HgData_Statewide1 = HgData_Statewide1 %>%
-  mutate(Existing_Children_MealsPerMonth=case_when(Species_Codes %in% c("BBH","BGL","BRK","LOC","CCF", "NAT", "SAG", "WBA", "WCR","DRM","SNF","KOK","RBT","SPL","WHS")~"2",
-                                       Species_Codes %in% c("BCR","CPP","SNF", "MAC","LMB","NPK","SMB","SBS","TGM","Wal","WAL","SXW","YPE") ~"1",
+  mutate(Existing_Children_MealsPerMonth=case_when(Species_Code %in% c("BBH","BGL","BRK","LOC","CCF", "NAT", "SAG", "WBA", "WCR","DRM","SNF","KOK","RBT","SPL","WHS")~"2",
+                                       Species_Code %in% c("BCR","CPP","SNF", "MAC","LMB","NPK","SMB","SBS","TGM","Wal","WAL","SXW","YPE") ~"1",
                                        TRUE ~ "No existing advisory"))
 
 

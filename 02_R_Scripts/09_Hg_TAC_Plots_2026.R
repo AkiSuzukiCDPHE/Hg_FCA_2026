@@ -207,7 +207,9 @@ ggplot(Hg_SS_TAC_GP2, aes(x = x_label)) +
   
   
   # 5. Formatting axes and limits
-  scale_y_continuous(limits = c(0, 1.63), breaks = seq(0, 1.63, by = 0.2)) +
+  scale_y_continuous(limits = c(0, 8.0), breaks = seq(0, 8.0, by = 1.0)) +
+
+
   labs(x = NULL, y = NULL) + # Removes default axis titles to match your clean look
   
   # 6. Styling the theme to match a clean grid

@@ -64,7 +64,7 @@ HgData_2 <- HgData_1 %>%
       Species_Code == "RXC" ~ "Rainbow Trout x Cutthroat",
       Species_Code == "RXN" ~ "Rainbow Trout",
       Species_Code == "SRN" ~ "Cutthroat",
-      Species_Code == "RGN" ~ "Cuttrhoat",
+      Species_Code == "RGN" ~ "Cuttthoat",
       Species_Code == "BRK" ~ "Brook Trout",
       Species_Code == "RBT" ~ "Rainbow Trout",
       Species_Code == "KOK" ~ "Kokanee",
