@@ -51,7 +51,7 @@ HgData_2 <- HgData_1 %>%
       Species_Code == "BBH" ~ "Black Bullhead",
       Species_Code == "CPP" ~ 'Common Carp',
       Species_Code == "CCF" ~ 'Channel Catfish',
-      Species_Code == "MAC" ~ "Lake Trout(Mackinaw)",
+      Species_Code == "MAC" ~ "Lake Trout (Mackinaw)",
       Species_Code == "SAG" ~ 'Saugeye',
       Species_Code == "SAGB" ~ "Saugeye",
       Species_Code == "SPL" ~ "Splake",
@@ -99,8 +99,9 @@ HgData_2 <- HgData_1 %>%
 table(HgData_2$Waterbody)
 
 # Rename waterbodies if needed
-# HgData_2 <- HgData_1 %>% mutate(Waterbody = case_when(Waterbody == "Jumbo Annex" ~ "Jumbo Lake"),
-#           TRUE ~ Waterbody)
+HgData_2 <- HgData_1 %>% mutate(Waterbody = case_when(Waterbody == "Jumbo Annex" ~ "Jumbo Lake",
+Waterbody== "Big Creek Lake Lower" ~"Big Creek Lakes",
+TRUE ~ Waterbody))
 
 
 # Lump subspecies together in the species code
@@ -125,7 +126,12 @@ HgData_3 = HgData_2 %>%
 
 # Replace non-detect values with the MDL
 HgData_4 <- HgData_3 %>%
-  mutate(Result = case_when(Qualifier %in% c("<", "BDL") ~ MDL, TRUE ~ Result))
+  mutate(Result = case_when(Qualifier %in% c("<", "BDL") ~ MDL, TRUE ~ Result)) |>  mutate(Units="mg/kg") |> 
+  mutate(`Length_mm`   = round(as.numeric(`Length_mm`), 2),
+    Length_Inches = round(as.numeric(Length_Inches), 2),
+    Result= round(Result,2)
+  )
+
 
 
 
@@ -145,10 +151,15 @@ colnames(HgData_4)
 
 
 # Reconcile different data types in the master vs new dataset
-HgData_Master$`Length_mm` <- as.numeric(HgData_Master$`Length_mm`)
-HgData_Master$`Weight (g)` <- as.numeric(HgData_Master$`Weight (g)`)
-HgData_Master$Length_Inches <- as.numeric(HgData_Master$Length_Inches)
-HgData_Master$Length_Inches <- as.numeric(HgData_Master$Length_Inches)
+library(dplyr)
+
+HgData_Master <- HgData_Master %>%
+  mutate(
+    `Length_mm`   = round(as.numeric(`Length_mm`), 2),
+    `Weight (g)`  = round(as.numeric(`Weight (g)`), 2),
+    Length_Inches = round(as.numeric(Length_Inches), 2),
+    Result= round(Result,2)
+  )
 
 
 # Merge master dataset with new cleaned dataframe

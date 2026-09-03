@@ -33,51 +33,63 @@ Hg_SS_TAC_Children2 <- Hg_SS_TAC_Children %>%
 
 
 # Create a combined X-axis column with a newline character (\n)
-Hg_SS_TAC_Children2 <- Hg_SS_TAC_Children2%>%
-  mutate(x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"))
+# Make sure Year is treated as a factor/categorical variable
+Hg_SS_TAC_Children2 <- Hg_SS_TAC_Children2 %>%
+  mutate(
+    x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"),
+    Year = as.factor(Sample_Year) # Convert year to factor for distinct colors
+  )
 
-
-
+# Run the plot
 ggplot(Hg_SS_TAC_Children2, aes(x = x_label)) +
-  # 1. Plot individual concentration points (blue circles)
-  geom_point(aes(y = Result), color = "#808080", size = 3, alpha = 0.7) +
+  # 1. Color points dynamically by Year (using fill or color)
+  # shape = 21 allows a filled circle with a dark border
+  geom_point(
+    aes(y = Result, fill = Year), 
+    shape = 21, 
+    color = "black", 
+    size = 3.5, 
+    alpha = 0.8
+  ) +
   
-  # 2. Plot the average results (green diamonds)
+  # 2. Plot average results (green/dark diamonds)
   geom_point(aes(y = Average_Result), color = "#2a2a2a", shape = 18, size = 5) +
   
-  # 3. Add horizontal threshold lines
-
-  # geom_hline(yintercept = 1.04, color = "#4BACC6", linewidth = 1) + # 0.25 meals/month
-  geom_hline(yintercept = 0.52, color = "#e40b0b", linewidth = 1) + # 0.5 meal/month
-  geom_hline(yintercept = 0.26, color = "#fd9e02", linewidth = 1) + # 1 meal per month
-  geom_hline(yintercept = 0.13, color = "#ffb703", linewidth = 1) + # 2 meal per month
-  geom_hline(yintercept = 0.09, color = "#126782", linewidth = 1) + # 3 meal per month
-
-
+  # 3. Horizontal threshold lines
+  geom_hline(yintercept = 0.52, color = "#e40b0b", linewidth = 1) + 
+  geom_hline(yintercept = 0.26, color = "#fd9e02", linewidth = 1) + 
+  geom_hline(yintercept = 0.13, color = "#ffb703", linewidth = 1) + 
+  geom_hline(yintercept = 0.09, color = "#126782", linewidth = 1) + 
   
-  # 4. Add threshold text labels on the left side
-  # annotate("text", x = 0.5, y = 1.20, label = "DO NOT EAT",  hjust = 0, size = 3.5) +
-  # annotate("text", x = 0.5, y = .99, label = "0.25 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = 0.3, label = "0.5 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .20, label = "1 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .11, label = "2 meals per month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .05, label = ">=3 meals per month",  hjust = 0, size = 3.5) +
+  # 4. Annotations
+  annotate("text", x = 0.5, y = 0.3, label = "0.5 meal/month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .20, label = "1 meal/month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .11, label = "2 meals per month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .05, label = ">=3 meals per month", hjust = 0, size = 3.5) +
   
+  # 5. Optional: Custom color palette for years
+  scale_fill_brewer(palette = "Set1") + # Or use scale_fill_manual() for exact hex codes
   
+  # 6. Formatting axes and limits
+  scale_y_continuous(limits = c(0, 0.55), breaks = seq(0, .55, by = 0.1)) +
+  labs(x = NULL, y = NULL, fill = "Sample Year") + 
   
-  # 5. Formatting axes and limits
-  scale_y_continuous(limits = c(0, 0.4), breaks = seq(0, 0.4, by = 0.2)) +
-  labs(x = NULL, y = NULL) + # Removes default axis titles to match your clean look
-  
-  # 6. Styling the theme to match a clean grid
+  # 7. Styling theme
   theme_minimal() +
   theme(
     panel.grid.major.x = element_line(color = "#E0E0E0"),
     panel.grid.major.y = element_line(color = "#E0E0E0"),
     panel.grid.minor = element_blank(),
     axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
-    axis.text.y = element_text(size = 11, color = "black")
+    axis.text.y = element_text(size = 11, color = "black"),
+    legend.position = "right" # Displays the color legend for years
   )
+
+
+
+
+
+
 
 
 
@@ -101,58 +113,59 @@ Hg_SS_TAC_Women2 <- Hg_SS_TAC_Women %>%
   group_by(Waterbody, Species) %>%
   mutate(Average_Result = mean(Result), Num_Obs = n())
 
-
-
 # Create a combined X-axis column with a newline character (\n)
-Hg_SS_TAC_Women2 <- Hg_SS_TAC_Women2%>%
-  mutate(x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"))
-
-
+Hg_SS_TAC_Women2 <- Hg_SS_TAC_Women2 %>%
+  mutate(
+    x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"),
+    Year = as.factor(Sample_Year)
+  )
 
 ggplot(Hg_SS_TAC_Women2, aes(x = x_label)) +
-  # 1. Plot individual concentration points (blue circles)
-  geom_point(aes(y = Result), color = "#808080", size = 3, alpha = 0.7) +
+  # 1. Plot individual concentration points
+  geom_point(
+    aes(y = Result, fill = Year),
+    shape = 21,
+    color = "black",                            
+    size = 3.5, 
+    alpha = 0.8
+  ) + 
   
-  # 2. Plot the average results (green diamonds)
+  # 2. Plot the average results (diamonds)
   geom_point(aes(y = Average_Result), color = "#2a2a2a", shape = 18, size = 5) +
   
   # 3. Add horizontal threshold lines
-  
-  # geom_hline(yintercept = 3.19, color = "#4BACC6", linewidth = 1) + # 0.25 meals/month
   geom_hline(yintercept = 1.59, color = "#e40b0b", linewidth = 1) + # 0.5 meal/month
-  geom_hline(yintercept = 0.8, color = "#fd9e02", linewidth = 1) + # 1 meal per month
-  geom_hline(yintercept = 0.4, color = "#ffb703", linewidth = 1) + # 2 meal per month
+  geom_hline(yintercept = 0.8, color = "#fd9e02", linewidth = 1) +  # 1 meal per month
+  geom_hline(yintercept = 0.4, color = "#ffb703", linewidth = 1) +  # 2 meal per month
   geom_hline(yintercept = 0.27, color = "#126782", linewidth = 1) + # 3 meal per month
-  geom_hline(yintercept = 0.2, color = "#219ebc", linewidth = 1) + # 4 meal per month
-  geom_hline(yintercept = 0.1, color = "#8ecae6", linewidth = 1) + # 8 meal per month
-  
+  geom_hline(yintercept = 0.2, color = "#219ebc", linewidth = 1) +  # 4 meal per month
+  geom_hline(yintercept = 0.1, color = "#8ecae6", linewidth = 1) +  # 8 meal per month
   
   # 4. Add threshold text labels on the left side
-  # annotate("text", x = 0.5, y = 1.20, label = "DO NOT EAT",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = 1.63, label = "0.25 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = 1.2, label = "0.5 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .7, label = "1 meal/month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .32, label = "2 meals per month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .23, label = "3 meals per month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .16, label = "4 meals per month",  hjust = 0, size = 3.5) +
-  annotate("text", x = 0.5, y = .05, label = ">= 8 meals per month",  hjust = 0, size = 3.5) +
-  
+  annotate("text", x = 0.5, y = 1.63, label = "0.25 meal/month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = 1.2, label = "0.5 meal/month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .7, label = "1 meal/month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .32, label = "2 meals per month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .23, label = "3 meals per month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .16, label = "4 meals per month", hjust = 0, size = 3.5) +
+  annotate("text", x = 0.5, y = .05, label = ">= 8 meals per month", hjust = 0, size = 3.5) +
   
   # 5. Formatting axes and limits
-  scale_y_continuous(limits = c(0, 1.63), breaks = seq(0, 1.63, by = 0.2)) +
-  labs(x = NULL, y = NULL) + # Removes default axis titles to match your clean look
+  scale_fill_brewer(palette = "Set1") +
+  #  y-axis limits from 0 to 1.8 so high thresholds/annotations show up
+  scale_y_continuous(limits = c(0, 1.8), breaks = seq(0, 1.8, by = 0.3)) +
+  labs(x = NULL, y = NULL, fill = "Sample Year") +
   
-  # 6. Styling the theme to match a clean grid
+  # 6. Styling theme
   theme_minimal() +
   theme(
     panel.grid.major.x = element_line(color = "#E0E0E0"),
     panel.grid.major.y = element_line(color = "#E0E0E0"),
     panel.grid.minor = element_blank(),
     axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
-    axis.text.y = element_text(size = 11, color = "black")
+    axis.text.y = element_text(size = 11, color = "black"),
+    legend.position = "right"
   )
-
-
 
 
 # TAC Plots General Population ####
@@ -172,21 +185,26 @@ Hg_SS_TAC_GP2 <- Hg_SS_TAC_GP %>%
 
 
 # Create a combined X-axis column with a newline character (\n)
-Hg_SS_TAC_GP2 <- Hg_SS_TAC_GP2%>%
-  mutate(x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"))
-
-
+Hg_SS_TAC_GP2 <- Hg_SS_TAC_GP2 %>%
+  mutate(
+    x_label = paste(Species, Num_Obs, Waterbody, sep = "\n"),
+    Year = as.factor(Sample_Year)                   # Converts year to discrete factor
+  )
 
 ggplot(Hg_SS_TAC_GP2, aes(x = x_label)) +
-  # 1. Plot individual concentration points (blue circles)
-  geom_point(aes(y = Result), color = "#808080", size = 3, alpha = 0.7) +
+  # 1. Plot individual concentration points (colored by year)
+  geom_point(
+    aes(y = Result, fill = Year),                   # Added fill = Year inside aes()
+    shape = 21,                                     # Enables filled shape with black border
+    color = "black",                                # Changed from solid #808080 to black border
+    size = 3.5, 
+    alpha = 0.8
+  ) +
   
-  # 2. Plot the average results (green diamonds)
+  # 2. Plot the average results (diamonds)
   geom_point(aes(y = Average_Result), color = "#2a2a2a", shape = 18, size = 5) +
   
   # 3. Add horizontal threshold lines
-  
-  # geom_hline(yintercept = 9.37, color = "#4BACC6", linewidth = 1) + # 0.25 meals/month
   geom_hline(yintercept = 4.68, color = "#e40b0b", linewidth = 1) + # 0.5 meal/month
   geom_hline(yintercept = 2.34, color = "#fd9e02", linewidth = 1) + # 1 meal per month
   geom_hline(yintercept = 1.17, color = "#ffb703", linewidth = 1) + # 2 meal per month
@@ -194,9 +212,7 @@ ggplot(Hg_SS_TAC_GP2, aes(x = x_label)) +
   geom_hline(yintercept = 0.59, color = "#219ebc", linewidth = 1) + # 4 meal per month
   geom_hline(yintercept = 0.29, color = "#8ecae6", linewidth = 1) + # 8 meal per month
   
-  
   # 4. Add threshold text labels on the left side
-  # annotate("text", x = 0.5, y = 1.20, label = "DO NOT EAT",  hjust = 0, size = 3.5) +
   annotate("text", x = 0.5, y = 7, label = "0.25 meal/month",  hjust = 0, size = 3.5) +
   annotate("text", x = 0.5, y = 3, label = "0.5 meal/month",  hjust = 0, size = 3.5) +
   annotate("text", x = 0.5, y = 1.5, label = "1 meal/month",  hjust = 0, size = 3.5) +
@@ -205,12 +221,10 @@ ggplot(Hg_SS_TAC_GP2, aes(x = x_label)) +
   annotate("text", x = 0.5, y = .5, label = "4 meals per month",  hjust = 0, size = 3.5) +
   annotate("text", x = 0.5, y = .2, label = ">= 8 meals per month",  hjust = 0, size = 3.5) +
   
-  
   # 5. Formatting axes and limits
+  scale_fill_brewer(palette = "Set1") +             # Distinct color palette for years
   scale_y_continuous(limits = c(0, 8.0), breaks = seq(0, 8.0, by = 1.0)) +
-
-
-  labs(x = NULL, y = NULL) + # Removes default axis titles to match your clean look
+  labs(x = NULL, y = NULL, fill = "Sample Year") +  # Added fill legend title
   
   # 6. Styling the theme to match a clean grid
   theme_minimal() +
@@ -219,5 +233,7 @@ ggplot(Hg_SS_TAC_GP2, aes(x = x_label)) +
     panel.grid.major.y = element_line(color = "#E0E0E0"),
     panel.grid.minor = element_blank(),
     axis.text.x = element_text(size = 11, color = "black", vjust = 0.5),
-    axis.text.y = element_text(size = 11, color = "black")
+    axis.text.y = element_text(size = 11, color = "black"),
+    legend.position = "right"                        # Shows year legend on right
   )
+

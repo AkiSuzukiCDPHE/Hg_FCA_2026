@@ -94,8 +94,8 @@ Hg_SS3 = Hg_SS2 %>%
 # Upload the existing advisories dataset
 # This will change every year but always needs to include all existing advisories for both PFOS and Hg.
 # Upload new version!!!
-Existing_SSAdvisories = read_excel("01_Raw_Data/Existing_Advisories_2026.xlsx", sheet =
-                                     1)
+Existing_SSAdvisories <- read_excel("X:/My Drive/_Projects/_TARA/CY 2026/Review Aki FCA Code/Existing_Advisories_2026.xlsx", sheet = 1)
+
 
 
 # Filter the data frame for the GP
