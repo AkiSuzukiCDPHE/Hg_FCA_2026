@@ -91,15 +91,42 @@ Hg_SS3 = Hg_SS2 %>%
 # Merge the data frame with the existing advisories list in order to evaluate which advisories are
 # new, updated, or removed in future advisories
 
-# Upload the existing advisories dataset
+# Upload the existing advisories dataset from the FCA folder on the shared drive
 # This will change every year but always needs to include all existing advisories for both PFOS and Hg.
 # Upload new version!!!
-Existing_SSAdvisories <- read_excel("X:/My Drive/_Projects/_TARA/CY 2026/Review Aki FCA Code/Existing_Advisories_2026.xlsx", sheet = 1)
+Existing_SSAdvisories <- read_excel("X:/Shared drives/_CDPHE TARA Team Drive/4. Environmental Contaminants Health and Outreach Unit/4.2 PFAS 🔥(LH_AFFF-2022)/Data Integration and Assessment/Fish/FCAs/All current advisories (statewide and site-specific)/2026_All_SS_Advisories_FCA_Dashboard.xlsx")
+
+
+library(tidyverse)
+
+Existing_SSAdvisories_01 <- Existing_SSAdvisories |> 
+  rename(FishType = Size, Current_SS = Advisory) |> 
+  mutate(
+    # Update FishType
+    FishType = case_when(
+      FishType == "Any"               ~ "",
+      str_detect(FishType, "Bigger")  ~ "Big",
+      str_detect(FishType, "Smaller") ~ "Small",
+      TRUE                            ~ FishType
+    ),
+    
+    # Remove phrases, trim whitespace, and replace "DO NOT EAT" with "0"
+    Current_SS_Per_Month = Current_SS %>% 
+      str_remove_all("servings?/month") %>% 
+      str_trim(),
+    
+    Current_SS_Per_Month = case_when(
+      Current_SS_Per_Month == "DO NOT EAT" ~ "0",
+      TRUE                                 ~ Current_SS_Per_Month
+    )
+  ) |> 
+  filter(Type != "New Mexico Advisory") |> 
+  mutate(Current_SS_Per_Month = as.numeric(Current_SS_Per_Month))
 
 
 
 # Filter the data frame for the GP
-ExistingSS <- Existing_SSAdvisories %>% filter(Population == "General population") |> rename(GP_Current_SS = Current_SS,
+ExistingSS <- Existing_SSAdvisories_01 %>% filter(Population == "General population") |> rename(GP_Current_SS = Current_SS,
                                                                                              GP_Current_SS_Per_Month = Current_SS_Per_Month)
 
 
@@ -137,8 +164,11 @@ Hg_SS4 <- Hg_SS3 %>%
 
 # Upload the statewide advisories dataset
 # This only changes every 5-10 years - we will likely not update until 2034
-Hg_Statewide = read_excel("01_Raw_Data/Existing_Advisories_2026.xlsx", sheet =
-                            2)
+library(readxl)
+
+Hg_Statewide <- read_excel(
+  "X:/Shared drives/_CDPHE TARA Team Drive/4. Environmental Contaminants Health and Outreach Unit/4.2 PFAS 🔥(LH_AFFF-2022)/Data Integration and Assessment/Fish/FCAs/All current advisories (statewide and site-specific)/2024_Statewide_Hg_Long_Wide.xlsx")
+
 
 # Transpose to long and add variables
 Hg_Statewide_long <- Hg_Statewide |> pivot_longer(
